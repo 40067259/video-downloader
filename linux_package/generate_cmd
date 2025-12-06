@@ -1,0 +1,7 @@
+ g++ -std=c++17 -O2 native_host.cpp -o native_host
+
+
+g++ -std=c++17 -O2 native_host.cpp -o videodl_host
+cp videodl_host ~/.local/bin/videodl_host
+chmod +x ~/.local/bin/videodl_host
+

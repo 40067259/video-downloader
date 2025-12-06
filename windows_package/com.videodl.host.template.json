@@ -1,0 +1,10 @@
+{
+  "name": "com.videodl.host",
+  "description": "Video downloader native host",
+  "path": "__HOST_PATH__",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://__EXTENSION_ID__/"
+  ]
+}
+

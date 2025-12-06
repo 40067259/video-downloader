@@ -1,0 +1,33 @@
+{
+  "name": "Video Downloader Native",
+  "description": "Download YouTube or M3U8 videos through native host.",
+  "version": "1.0",
+  "manifest_version": 3,
+
+  "permissions": [
+    "nativeMessaging",
+    "tabs",
+    "activeTab",
+    "scripting",
+    "debugger"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_title": "VideoDL",
+    "default_icon": "icons/icon128_new.png",
+    "default_popup": "popup.html"
+  },
+
+  "icons": {
+    "128": "icons/icon128_new.png"
+  }
+}
+
