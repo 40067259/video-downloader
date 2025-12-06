@@ -49,10 +49,31 @@ function connectNative() {
 // M3U8 自动捕获 (仅用于M3U8下载)
 // ============================================
 
+// 检查URL是否应该附加debugger
+function shouldAttachDebugger(url) {
+    if (!url) return false;
+
+    // 排除Chrome内部页面
+    const excludedPrefixes = [
+        'chrome://',
+        'chrome-extension://',
+        'about:',
+        'edge://',
+        'devtools://'
+    ];
+
+    return !excludedPrefixes.some(prefix => url.startsWith(prefix));
+}
+
 // 附加debugger到标签页
-async function attachDebugger(tabId) {
+async function attachDebugger(tabId, url) {
     if (debuggerAttached[tabId]) {
         return; // 已经附加
+    }
+
+    // 检查是否应该附加
+    if (!shouldAttachDebugger(url)) {
+        return;
     }
 
     try {
@@ -102,7 +123,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 
         // 只对非YouTube页面附加debugger（保护YouTube下载）
         if (tab.url && !tab.url.includes('youtube.com')) {
-            await attachDebugger(tabId);
+            await attachDebugger(tabId, tab.url);
         }
     } catch (error) {
         // 忽略错误
@@ -114,7 +135,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (changeInfo.status === 'loading' && tab.url) {
         // 只对非YouTube页面附加debugger
         if (!tab.url.includes('youtube.com')) {
-            await attachDebugger(tabId);
+            await attachDebugger(tabId, tab.url);
         }
     }
 });
