@@ -58,13 +58,32 @@ set "BIN_DIR=%LOCALAPPDATA%\Programs"
 set "CHROME_DIR=%LOCALAPPDATA%\Google\Chrome\User Data\NativeMessagingHosts"
 set "DOWNLOADS_DIR=%USERPROFILE%\Downloads\VideoDownloader"
 
-if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
+if not exist "%INSTALL_DIR%" (
+    mkdir "%INSTALL_DIR%"
+    if %errorLevel% neq 0 (
+        echo Error: Failed to create %INSTALL_DIR%
+        echo Please check permissions
+        pause
+        exit /b 1
+    )
+)
 if not exist "%TOOLS_DIR%" mkdir "%TOOLS_DIR%"
-if not exist "%BIN_DIR%" mkdir "%BIN_DIR%"
+if not exist "%BIN_DIR%" (
+    mkdir "%BIN_DIR%"
+    if %errorLevel% neq 0 (
+        echo Error: Failed to create %BIN_DIR%
+        echo Please run as administrator
+        pause
+        exit /b 1
+    )
+)
 if not exist "%CHROME_DIR%" mkdir "%CHROME_DIR%"
 if not exist "%DOWNLOADS_DIR%" mkdir "%DOWNLOADS_DIR%"
 
 echo [OK] Directories created
+echo   - Install: %INSTALL_DIR%
+echo   - Binary: %BIN_DIR%
+echo   - Downloads: %DOWNLOADS_DIR%
 echo.
 
 REM Compile native_host if needed
@@ -87,9 +106,32 @@ if "%NEED_COMPILE%"=="1" (
 
 REM Copy files
 echo Installing files...
-copy /Y native_host.exe "%BIN_DIR%\videodl_host.exe" >nul
+
+REM Check if native_host.exe exists
+if not exist "%SCRIPT_DIR%native_host.exe" (
+    echo Error: native_host.exe not found in %SCRIPT_DIR%
+    echo Please make sure you extracted all files correctly
+    pause
+    exit /b 1
+)
+
+REM Show debug info
+echo Debug: Source file: %SCRIPT_DIR%native_host.exe
+echo Debug: Destination: %BIN_DIR%\videodl_host.exe
+echo.
+
+REM Copy with error checking
+copy /Y "%SCRIPT_DIR%native_host.exe" "%BIN_DIR%\videodl_host.exe"
 if %errorLevel% neq 0 (
+    echo.
     echo Error: Failed to copy native_host.exe
+    echo Source: %SCRIPT_DIR%native_host.exe
+    echo Destination: %BIN_DIR%\videodl_host.exe
+    echo.
+    echo Possible solutions:
+    echo   1. Make sure you're running as Administrator
+    echo   2. Check if antivirus is blocking the file
+    echo   3. Try closing Chrome and running again
     pause
     exit /b 1
 )
