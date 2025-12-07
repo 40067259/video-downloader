@@ -167,31 +167,64 @@ To remove the extension:
 
 ### Windows Installation
 
-#### 1. Compile Native Host
+**One-command installation:**
 
-Using MinGW:
+1. **Download or clone this repository**
+   ```cmd
+   git clone https://github.com/40067259/video-downloader.git
+   cd video-downloader\windows_package
+   ```
+
+2. **Run the installer** (Right-click → Run as Administrator)
+   ```cmd
+   install.bat
+   ```
+
+   The installer will:
+   - ✅ Compile the native messaging host
+   - ✅ Install all required files
+   - ✅ Set up Chrome configuration
+   - ✅ Create download directory in `%USERPROFILE%\Downloads\VideoDownloader\`
+
+3. **Download required tools** (if not included)
+   - [yt-dlp.exe](https://github.com/yt-dlp/yt-dlp/releases) - Place in `windows_package/`
+   - [N_m3u8DL-RE.exe](https://github.com/nilaoda/N_m3u8DL-RE/releases) - Place in `windows_package/`
+
+4. **Load the Chrome extension**
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" (top right toggle)
+   - Click "Load unpacked"
+   - Select the `plugin/` directory
+   - **Copy the Extension ID**
+
+5. **Update configuration (if needed)**
+
+   If your extension ID is different from the default, run the installer again and enter your extension ID when prompted.
+
+6. **Restart Chrome**
+
+#### Installation Locations
+
+After installation:
+- Native Host: `%LOCALAPPDATA%\Programs\videodl_host.exe`
+- Download Tools: `%LOCALAPPDATA%\video-downloader\tools\`
+- Downloaded Videos: `%USERPROFILE%\Downloads\VideoDownloader\`
+- Configuration: `%LOCALAPPDATA%\Google\Chrome\User Data\NativeMessagingHosts\`
+
+#### Uninstallation
+
+To remove the extension:
+
 ```cmd
 cd windows_package
-g++ -std=c++11 -o native_host.exe native_host.cpp
+uninstall.bat
 ```
 
-Or using Visual Studio:
-```cmd
-cl /EHsc /std:c++17 native_host.cpp
-```
+#### Requirements
 
-#### 2. Install Chrome Extension
-
-(Same as Linux step 3)
-
-#### 3. Run Installation Script
-
-```cmd
-cd windows_package
-installer.bat <YOUR_EXTENSION_ID>
-```
-
-#### 4. Restart Chrome
+- Windows 10/11
+- MinGW-w64 or Visual Studio (for compilation)
+- Chrome or Chromium-based browser
 
 ## 📖 Usage Guide
 
