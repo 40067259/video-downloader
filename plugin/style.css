@@ -31,3 +31,49 @@ button {
     white-space: pre-wrap;
 }
 
+/* Progress Bar Styles */
+#progress_container {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 5px;
+}
+
+.progress_info {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.progress_bar_bg {
+    width: 100%;
+    height: 20px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress_bar_fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #45a049);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress_details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #666;
+}
+
+.progress_details span {
+    flex: 1;
+    text-align: center;
+}
+

@@ -27,10 +27,19 @@ function connectNative() {
 
         console.log("Parsed native msg:", msg);
 
-        chrome.runtime.sendMessage({
-            type: "native_response",
-            data: msg
-        });
+        // 检查是否是进度更新
+        if (msg.type === "progress") {
+            chrome.runtime.sendMessage({
+                type: "download_progress",
+                data: msg
+            });
+        } else {
+            // 普通响应消息
+            chrome.runtime.sendMessage({
+                type: "native_response",
+                data: msg
+            });
+        }
     });
 
     port.onDisconnect.addListener(() => {

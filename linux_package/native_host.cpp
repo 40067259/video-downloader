@@ -70,12 +70,133 @@ void sendMessage(const json& msg) {
 }
 
 // ---------------------------------------------------------
-// Execute external command safely
+// Parse yt-dlp progress line
 // ---------------------------------------------------------
-int run(const std::string& cmd) {
+void parseYtDlpProgress(const std::string& line, const std::string& filename) {
+    // yt-dlp format: [download]  45.2% of 123.45MiB at 2.34MiB/s ETA 00:32
+    if (line.find("[download]") != std::string::npos && line.find("%") != std::string::npos) {
+        float percent = 0.0f;
+        char speed[64] = {0};
+        char eta[32] = {0};
+
+        // Try to extract percentage
+        size_t pct_pos = line.find("%");
+        if (pct_pos != std::string::npos) {
+            // Find start of number before %
+            size_t start = pct_pos;
+            while (start > 0 && (isdigit(line[start-1]) || line[start-1] == '.')) start--;
+            std::string pct_str = line.substr(start, pct_pos - start);
+            percent = std::stof(pct_str);
+        }
+
+        // Try to extract speed
+        size_t at_pos = line.find(" at ");
+        if (at_pos != std::string::npos) {
+            size_t speed_end = line.find(" ", at_pos + 4);
+            if (speed_end != std::string::npos) {
+                std::string speed_str = line.substr(at_pos + 4, speed_end - (at_pos + 4));
+                snprintf(speed, sizeof(speed), "%s", speed_str.c_str());
+            }
+        }
+
+        // Try to extract ETA
+        size_t eta_pos = line.find("ETA ");
+        if (eta_pos != std::string::npos) {
+            std::string eta_str = line.substr(eta_pos + 4, 5); // HH:MM format
+            snprintf(eta, sizeof(eta), "%s", eta_str.c_str());
+        }
+
+        // Send progress message
+        json progress = {
+            {"type", "progress"},
+            {"percent", percent},
+            {"speed", speed},
+            {"eta", eta},
+            {"filename", filename}
+        };
+        sendMessage(progress);
+    }
+}
+
+// ---------------------------------------------------------
+// Parse N_m3u8DL-RE progress line
+// ---------------------------------------------------------
+void parseM3u8Progress(const std::string& line, const std::string& filename) {
+    // N_m3u8DL-RE format: Vid Kbps ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 132/492 26.83% 230.66MB/907.87MB 25.98MBps 00:00:24
+    if (line.find("Vid") != std::string::npos && line.find("%") != std::string::npos && line.find("MBps") != std::string::npos) {
+        float percent = 0.0f;
+        char speed[64] = {0};
+        char eta[32] = {0};
+
+        // Extract percentage
+        size_t pct_pos = line.find("%");
+        if (pct_pos != std::string::npos) {
+            size_t start = pct_pos;
+            while (start > 0 && (isdigit(line[start-1]) || line[start-1] == '.')) start--;
+            std::string pct_str = line.substr(start, pct_pos - start);
+            percent = std::stof(pct_str);
+        }
+
+        // Extract speed (look for MBps)
+        size_t mbps_pos = line.find("MBps");
+        if (mbps_pos != std::string::npos) {
+            size_t start = mbps_pos;
+            while (start > 0 && line[start-1] == ' ') start--;
+            while (start > 0 && (isdigit(line[start-1]) || line[start-1] == '.')) start--;
+            std::string speed_str = line.substr(start, mbps_pos - start) + "MBps";
+            snprintf(speed, sizeof(speed), "%s", speed_str.c_str());
+        }
+
+        // Extract ETA (last time format XX:XX:XX or XX:XX)
+        size_t last_colon = line.rfind(":");
+        if (last_colon != std::string::npos && last_colon > 0) {
+            // Find start of time (look back for space or another colon)
+            size_t start = last_colon;
+            while (start > 0 && line[start-1] != ' ') start--;
+            std::string eta_str = line.substr(start, line.length() - start);
+            // Trim trailing whitespace
+            eta_str.erase(eta_str.find_last_not_of(" \n\r\t") + 1);
+            snprintf(eta, sizeof(eta), "%s", eta_str.c_str());
+        }
+
+        // Send progress message
+        json progress = {
+            {"type", "progress"},
+            {"percent", percent},
+            {"speed", speed},
+            {"eta", eta},
+            {"filename", filename}
+        };
+        sendMessage(progress);
+    }
+}
+
+// ---------------------------------------------------------
+// Execute command and capture progress
+// ---------------------------------------------------------
+int run(const std::string& cmd, const std::string& filename = "") {
     std::fprintf(stderr, "[Host] Running command: %s\n", cmd.c_str());
-    int ret = system(cmd.c_str());
-    int code = WEXITSTATUS(ret);
+
+    FILE* pipe = popen((cmd + " 2>&1").c_str(), "r");
+    if (!pipe) {
+        std::fprintf(stderr, "[Host] Failed to open pipe\n");
+        return -1;
+    }
+
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        std::string line(buffer);
+        std::fprintf(stderr, "%s", line.c_str());
+
+        // Parse progress (try both formats - they won't conflict)
+        if (!filename.empty()) {
+            parseYtDlpProgress(line, filename);
+            parseM3u8Progress(line, filename);
+        }
+    }
+
+    int status = pclose(pipe);
+    int code = WEXITSTATUS(status);
     std::fprintf(stderr, "[Host] Command exit code = %d\n", code);
     return code;
 }
@@ -113,20 +234,21 @@ int main() {
         if (action == "download_youtube") {
             std::string url  = msg.value("url", "");
             std::string save = msg.value("save_name", "youtube_video");
+            std::string filename = save + ".mp4";
 
             std::string cmd =
                 "./yt-dlp -f \"bv*[vcodec^=avc1]+ba/b\" "
                 "--merge-output-format mp4 "
-                "-o \"" + save + ".mp4\" "
-                "\"" + url + "\" "
-                ">/dev/null 2>&1";
+                "--newline "
+                "-o \"" + filename + "\" "
+                "\"" + url + "\"";
 
-            int ret = run(cmd);
+            int ret = run(cmd, filename);
 
             sendMessage({
                 {"status", ret == 0 ? "done" : "error"},
                 {"exit_code", ret},
-                {"file", save + ".mp4"}
+                {"file", filename}
             });
             continue;
         }
@@ -138,19 +260,19 @@ int main() {
             std::string url  = msg.value("url", "");
             std::string ref  = msg.value("referer", "");
             std::string save = msg.value("save_name", "video");
+            std::string filename = save + ".mp4";
 
             std::string cmd =
                 "./N_m3u8DL-RE \"" + url + "\" "
                 "-H \"Referer: " + ref + "\" "
-                "--save-name \"" + save + "\" "
-                ">/dev/null 2>&1";
+                "--save-name \"" + save + "\"";
 
-            int ret = run(cmd);
+            int ret = run(cmd, filename);
 
             sendMessage({
                 {"status", ret == 0 ? "done" : "error"},
                 {"exit_code", ret},
-                {"file", save + ".mp4"}
+                {"file", filename}
             });
             continue;
         }

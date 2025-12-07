@@ -98,11 +98,61 @@ async function startM3U8Download() {
 }
 
 // ============================================
-// 接收来自 native_host 的回执
+// Progress Bar Functions
+// ============================================
+
+// 显示/隐藏进度条
+function showProgress(show) {
+    document.getElementById("progress_container").style.display = show ? "block" : "none";
+}
+
+// 更新进度条
+function updateProgress(data) {
+    if (data.percent !== undefined) {
+        const percent = Math.min(100, Math.max(0, data.percent));
+        document.getElementById("progress_bar").style.width = percent + "%";
+        document.getElementById("progress_percent").textContent = percent.toFixed(1) + "%";
+    }
+
+    if (data.speed) {
+        document.getElementById("progress_speed").textContent = data.speed;
+    }
+
+    if (data.eta) {
+        document.getElementById("progress_eta").textContent = "ETA: " + data.eta;
+    }
+
+    if (data.filename) {
+        document.getElementById("progress_filename").textContent = data.filename;
+    }
+}
+
+// 重置进度条
+function resetProgress() {
+    document.getElementById("progress_bar").style.width = "0%";
+    document.getElementById("progress_percent").textContent = "0%";
+    document.getElementById("progress_speed").textContent = "";
+    document.getElementById("progress_eta").textContent = "";
+    document.getElementById("progress_filename").textContent = "";
+}
+
+// ============================================
+// 接收来自 native_host 的回执和进度
 // ============================================
 chrome.runtime.onMessage.addListener(msg => {
     if (msg.type === "native_response") {
         let info = msg.data;
-        set(JSON.stringify(info, null, 2));
+
+        // 检查是否是最终结果
+        if (info.status === "done" || info.status === "error") {
+            showProgress(false);
+            set(JSON.stringify(info, null, 2));
+        }
+    }
+
+    // 处理进度更新
+    if (msg.type === "download_progress") {
+        showProgress(true);
+        updateProgress(msg.data);
     }
 });
