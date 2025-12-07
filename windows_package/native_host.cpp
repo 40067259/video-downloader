@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <string>
 #include <windows.h>
+#include <direct.h>  // for _chdir
 #include "json.hpp"
 
 using json = nlohmann::json;
