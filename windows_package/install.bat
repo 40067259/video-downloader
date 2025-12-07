@@ -196,6 +196,18 @@ echo }
 echo [OK] Configuration created
 echo.
 
+REM Register with Chrome via Registry (Required for Windows)
+echo Registering native messaging host in Windows Registry...
+reg add "HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\com.videodl.host" /ve /t REG_SZ /d "%MANIFEST_FILE%" /f >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Warning: Failed to add registry key
+    echo The extension may not work without registry configuration
+    echo Please run this script as Administrator
+) else (
+    echo [OK] Registry key added
+)
+echo.
+
 echo ==========================================
 echo Installation Complete!
 echo ==========================================
