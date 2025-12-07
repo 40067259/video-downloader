@@ -1,8 +1,26 @@
 # 编译文件
 *.o
-*.exe
+
+# Exclude compiled files EXCEPT the ones we need for distribution
 native_host
 videodl_host
+
+# Allow these specific exe files for Windows package
+!windows_package/native_host.exe
+!windows_package/yt-dlp.exe
+!windows_package/N_m3u8DL-RE.exe
+
+# Allow Linux tools
+!linux_package/yt-dlp
+!linux_package/N_m3u8DL-RE
+!linux_package/native_host
+!linux_package/videodl_host
+
+# Allow macOS tools (if any)
+!mac_package/yt-dlp
+!mac_package/N_m3u8DL-RE
+!mac_package/native_host
+!mac_package/videodl_host
 
 # 日志文件
 Logs/
