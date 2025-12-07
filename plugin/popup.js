@@ -169,8 +169,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         // 检查是否是最终结果
         if (info.status === "done") {
             showProgress(false);
-            let folder = "/home/zhangf/workplace/download_plugin/linux_package";
-            let message = `Congratulations!\n\n"${info.file}" is saved in:\n${folder}`;
+            // Use the path returned from native host, or fallback to ~/Downloads/VideoDownloader
+            let filePath = info.path || "~/Downloads/VideoDownloader/" + info.file;
+            let message = `Congratulations!\n\n"${info.file}" is saved!\n\nLocation:\n${filePath}`;
             set(message);
         } else if (info.status === "error") {
             showProgress(false);

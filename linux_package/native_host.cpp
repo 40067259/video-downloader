@@ -7,6 +7,9 @@
 
 using json = nlohmann::json;
 
+// Global variable for downloads directory
+std::string g_downloadsDir;
+
 // ---------------------------------------------------------
 // Read 4-byte little-endian length header
 // ---------------------------------------------------------
@@ -205,14 +208,28 @@ int run(const std::string& cmd, const std::string& filename = "") {
 // MAIN LOOP
 // ---------------------------------------------------------
 int main() {
-    // Force working directory
-    const char* WORKDIR = "/home/zhangf/workplace/download_plugin/linux_package";
-    if (chdir(WORKDIR) != 0) {
-        std::fprintf(stderr, "[Host] ERROR: chdir failed => %s\n", WORKDIR);
-    } else {
-        std::fprintf(stderr, "[Host] chdir OK => %s\n", WORKDIR);
+    // Get user's home directory
+    const char* home = getenv("HOME");
+    if (!home) {
+        std::fprintf(stderr, "[Host] ERROR: HOME environment variable not set\n");
+        return 1;
     }
 
+    // Set working directory to where tools are located
+    std::string toolsDir = std::string(home) + "/.local/share/video-downloader/tools";
+    if (chdir(toolsDir.c_str()) != 0) {
+        std::fprintf(stderr, "[Host] ERROR: chdir failed => %s\n", toolsDir.c_str());
+        std::fprintf(stderr, "[Host] Please run install.sh first\n");
+        return 1;
+    }
+    std::fprintf(stderr, "[Host] Working directory: %s\n", toolsDir.c_str());
+
+    // Create downloads directory if needed
+    g_downloadsDir = std::string(home) + "/Downloads/VideoDownloader";
+    std::string mkdirCmd = "mkdir -p \"" + g_downloadsDir + "\"";
+    system(mkdirCmd.c_str());
+
+    std::fprintf(stderr, "[Host] Downloads will be saved to: %s\n", g_downloadsDir.c_str());
     std::fprintf(stderr, "[Host] Native host started and waiting for messages...\n");
 
     while (true) {
@@ -235,12 +252,13 @@ int main() {
             std::string url  = msg.value("url", "");
             std::string save = msg.value("save_name", "youtube_video");
             std::string filename = save + ".mp4";
+            std::string fullPath = g_downloadsDir + "/" + filename;
 
             std::string cmd =
                 "./yt-dlp -f \"bv*[vcodec^=avc1]+ba/b\" "
                 "--merge-output-format mp4 "
                 "--newline "
-                "-o \"" + filename + "\" "
+                "-o \"" + fullPath + "\" "
                 "\"" + url + "\"";
 
             int ret = run(cmd, filename);
@@ -248,7 +266,8 @@ int main() {
             sendMessage({
                 {"status", ret == 0 ? "done" : "error"},
                 {"exit_code", ret},
-                {"file", filename}
+                {"file", filename},
+                {"path", fullPath}
             });
             continue;
         }
@@ -261,18 +280,21 @@ int main() {
             std::string ref  = msg.value("referer", "");
             std::string save = msg.value("save_name", "video");
             std::string filename = save + ".mp4";
+            std::string fullPath = g_downloadsDir + "/" + filename;
 
             std::string cmd =
                 "./N_m3u8DL-RE \"" + url + "\" "
                 "-H \"Referer: " + ref + "\" "
-                "--save-name \"" + save + "\"";
+                "--save-name \"" + save + "\" "
+                "--save-dir \"" + g_downloadsDir + "\"";
 
             int ret = run(cmd, filename);
 
             sendMessage({
                 {"status", ret == 0 ? "done" : "error"},
                 {"exit_code", ret},
-                {"file", filename}
+                {"file", filename},
+                {"path", fullPath}
             });
             continue;
         }

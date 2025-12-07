@@ -98,41 +98,71 @@ A powerful Chrome extension for downloading YouTube videos and M3U8 streaming vi
 
 ## 🚀 Installation
 
-### Linux Installation
+### Quick Start (Recommended)
 
-#### 1. Compile Native Host
+#### Linux Installation
+
+**One-command installation:**
 
 ```bash
-cd linux_package
-g++ -std=c++11 -o native_host native_host.cpp
+./install.sh
 ```
 
-#### 2. Install Chrome Extension First
+The installer will:
+- ✅ Compile the native messaging host
+- ✅ Install all required files
+- ✅ Set up Chrome/Chromium configuration
+- ✅ Create download directory in `~/Downloads/VideoDownloader/`
 
-1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode" (top right toggle)
-3. Click "Load unpacked"
-4. Select the `plugin/` directory
-5. **Copy the Extension ID** (looks like `abcdefghijklmnopqrstuvwxyz123456`)
+**Detailed Steps:**
 
-#### 3. Install Native Host
+1. **Clone or download this repository**
+   ```bash
+   git clone https://github.com/40067259/video-downloader.git
+   cd video-downloader
+   ```
+
+2. **Run the installer**
+   ```bash
+   chmod +x install.sh
+   ./install.sh
+   ```
+
+3. **Load the Chrome extension**
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" (top right toggle)
+   - Click "Load unpacked"
+   - Select the `plugin/` directory
+   - **Copy the Extension ID** (looks like `nkbcigemlaglenoffcejlcokdjjffbpp`)
+
+4. **Update configuration (if needed)**
+
+   If your extension ID is different from the default, run the installer again:
+   ```bash
+   ./install.sh
+   # Enter your extension ID when prompted
+   ```
+
+5. **Restart Chrome**
+   ```bash
+   pkill -f chrome
+   # Reopen Chrome and test the extension
+   ```
+
+#### Installation Locations
+
+After installation:
+- Native Host: `~/.local/bin/videodl_host`
+- Download Tools: `~/.local/share/video-downloader/tools/`
+- Downloaded Videos: `~/Downloads/VideoDownloader/`
+- Configuration: `~/.config/google-chrome/NativeMessagingHosts/`
+
+#### Uninstallation
+
+To remove the extension:
 
 ```bash
-# Use the Extension ID from step 2
-cd linux_package
-./install.sh <YOUR_EXTENSION_ID>
-```
-
-Example:
-```bash
-./install.sh nkbcigemlaglenoffcejlcokdjjffbpp
-```
-
-#### 4. Restart Chrome
-
-```bash
-pkill -f chrome
-# Reopen Chrome
+./uninstall.sh
 ```
 
 ### Windows Installation
@@ -152,7 +182,7 @@ cl /EHsc /std:c++17 native_host.cpp
 
 #### 2. Install Chrome Extension
 
-(Same as Linux step 2)
+(Same as Linux step 3)
 
 #### 3. Run Installation Script
 
