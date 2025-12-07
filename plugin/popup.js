@@ -1,10 +1,20 @@
+// 全局Promise rejection处理
+window.addEventListener('unhandledrejection', event => {
+    console.log('Popup handled promise rejection:', event.reason);
+    event.preventDefault();
+});
+
 function set(msg) {
     document.getElementById("status").innerText = msg;
 }
 
 (async function init() {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    document.getElementById("video_url").value = tab.url;
+    try {
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        document.getElementById("video_url").value = tab.url;
+    } catch (error) {
+        console.error("Init error:", error);
+    }
 })();
 
 // ============================================
@@ -35,6 +45,10 @@ function startYouTubeDownload() {
     };
 
     chrome.runtime.sendMessage(payload, resp => {
+        if (chrome.runtime.lastError) {
+            set("Failed to connect: " + chrome.runtime.lastError.message);
+            return;
+        }
         if (resp && resp.ok) {
             set("Download started…");
         } else {
@@ -63,6 +77,11 @@ async function startM3U8Download() {
 
     // 从background获取自动捕获的M3U8 URL
     chrome.runtime.sendMessage({ type: "getM3U8", tabId: tab.id }, (response) => {
+        if (chrome.runtime.lastError) {
+            set("Failed to connect: " + chrome.runtime.lastError.message);
+            return;
+        }
+
         let downloadUrl = pageUrl;  // 默认使用页面URL
 
         // 如果捕获到M3U8 URL，优先使用它
@@ -88,6 +107,10 @@ async function startM3U8Download() {
         };
 
         chrome.runtime.sendMessage(payload, resp => {
+            if (chrome.runtime.lastError) {
+                set("Failed to connect: " + chrome.runtime.lastError.message);
+                return;
+            }
             if (resp && resp.ok) {
                 set("Download started…");
             } else {
@@ -139,14 +162,24 @@ function resetProgress() {
 // ============================================
 // 接收来自 native_host 的回执和进度
 // ============================================
-chrome.runtime.onMessage.addListener(msg => {
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === "native_response") {
         let info = msg.data;
 
         // 检查是否是最终结果
-        if (info.status === "done" || info.status === "error") {
+        if (info.status === "done") {
             showProgress(false);
-            set(JSON.stringify(info, null, 2));
+            let folder = "/home/zhangf/workplace/download_plugin/linux_package";
+            let message = `Congratulations!\n\n"${info.file}" is saved in:\n${folder}`;
+            set(message);
+        } else if (info.status === "error") {
+            showProgress(false);
+            let errorMsg = info.msg || "Unknown error";
+            let message = `Download failed!\n\nError: ${errorMsg}`;
+            if (info.exit_code) {
+                message += `\nExit code: ${info.exit_code}`;
+            }
+            set(message);
         }
     }
 
@@ -155,4 +188,7 @@ chrome.runtime.onMessage.addListener(msg => {
         showProgress(true);
         updateProgress(msg.data);
     }
+
+    // 不需要响应，返回false
+    return false;
 });

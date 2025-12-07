@@ -1,6 +1,19 @@
+// 全局错误处理
+self.addEventListener('unhandledrejection', event => {
+    console.log('[Background] Handled promise rejection:', event.reason);
+    event.preventDefault();
+});
+
+self.addEventListener('error', event => {
+    console.log('[Background] Handled error:', event.error);
+    event.preventDefault();
+});
+
 let port = null;
 let m3u8Urls = {}; // 存储每个标签页捕获的M3U8 URL {tabId: url}
 let debuggerAttached = {}; // 跟踪哪些标签页已附加debugger
+
+console.log('[Background] Service worker initializing...');
 
 // ============================================
 // Native Messaging (YouTube下载使用，不变)
@@ -29,16 +42,34 @@ function connectNative() {
 
         // 检查是否是进度更新
         if (msg.type === "progress") {
-            chrome.runtime.sendMessage({
-                type: "download_progress",
-                data: msg
-            });
+            try {
+                chrome.runtime.sendMessage({
+                    type: "download_progress",
+                    data: msg
+                }, () => {
+                    // Ignore errors if popup is closed
+                    if (chrome.runtime.lastError) {
+                        // Silently ignore - popup is closed
+                    }
+                });
+            } catch (e) {
+                // Silently ignore send errors
+            }
         } else {
             // 普通响应消息
-            chrome.runtime.sendMessage({
-                type: "native_response",
-                data: msg
-            });
+            try {
+                chrome.runtime.sendMessage({
+                    type: "native_response",
+                    data: msg
+                }, () => {
+                    // Ignore errors if popup is closed
+                    if (chrome.runtime.lastError) {
+                        // Silently ignore - popup is closed
+                    }
+                });
+            } catch (e) {
+                // Silently ignore send errors
+            }
         }
     });
 
@@ -86,12 +117,18 @@ async function attachDebugger(tabId, url) {
     }
 
     try {
-        await chrome.debugger.attach({ tabId }, "1.3");
-        await chrome.debugger.sendCommand({ tabId }, "Network.enable");
+        await chrome.debugger.attach({ tabId }, "1.3").catch(err => {
+            console.log("[M3U8 Debugger] Attach failed (expected):", err.message);
+            throw err;
+        });
+        await chrome.debugger.sendCommand({ tabId }, "Network.enable").catch(err => {
+            console.log("[M3U8 Debugger] Network.enable failed:", err.message);
+            throw err;
+        });
         debuggerAttached[tabId] = true;
         console.log("[M3U8 Debugger] Attached to tab:", tabId);
     } catch (error) {
-        console.error("[M3U8 Debugger] Failed to attach:", error);
+        // 静默失败 - 某些标签页无法附加debugger
     }
 }
 
@@ -141,17 +178,25 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 
 // 标签页更新时附加debugger（新加载的页面）
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'loading' && tab.url) {
-        // 只对非YouTube页面附加debugger
-        if (!tab.url.includes('youtube.com')) {
-            await attachDebugger(tabId, tab.url);
+    try {
+        if (changeInfo.status === 'loading' && tab.url) {
+            // 只对非YouTube页面附加debugger
+            if (!tab.url.includes('youtube.com')) {
+                await attachDebugger(tabId, tab.url);
+            }
         }
+    } catch (error) {
+        // 忽略错误
     }
 });
 
 // 标签页关闭时清理
-chrome.tabs.onRemoved.addListener((tabId) => {
-    detachDebugger(tabId);
+chrome.tabs.onRemoved.addListener(async (tabId) => {
+    try {
+        await detachDebugger(tabId);
+    } catch (error) {
+        // 忽略错误
+    }
 });
 
 // debugger分离时清理
