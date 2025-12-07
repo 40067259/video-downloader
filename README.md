@@ -7,7 +7,7 @@ A powerful Chrome extension for downloading YouTube videos and M3U8 streaming vi
 - 🎬 **YouTube Video Download** - Automatically download YouTube videos via yt-dlp
 - 📺 **M3U8 Stream Download** - Auto-capture and download M3U8 format video streams
 - 🔍 **Smart URL Detection** - Automatically detect and capture M3U8 playlist URLs
-- 🖥️ **Cross-Platform** - Support for both Linux and Windows
+- 🖥️ **Cross-Platform** - Support for Linux, macOS, and Windows
 - 🚀 **Native Performance** - High-performance downloads using Native Messaging Host
 
 ## 🏗️ Technical Architecture
@@ -92,6 +92,11 @@ A powerful Chrome extension for downloading YouTube videos and M3U8 streaming vi
 - GCC 7+ (for compilation)
 - Dependencies: libstdc++
 
+### macOS
+- macOS 10.15+ (Catalina or later)
+- Xcode Command Line Tools (for compilation)
+- Available for both Intel and Apple Silicon Macs
+
 ### Windows
 - Windows 10/11
 - Visual Studio 2019+ or MinGW-w64 (for compilation)
@@ -164,6 +169,96 @@ To remove the extension:
 ```bash
 ./uninstall.sh
 ```
+
+### macOS Installation
+
+**One-command installation:**
+
+1. **Download or clone this repository**
+   ```bash
+   git clone https://github.com/40067259/video-downloader.git
+   cd video-downloader/mac_package
+   ```
+
+2. **Install Xcode Command Line Tools** (if not already installed)
+   ```bash
+   xcode-select --install
+   ```
+
+3. **Run the installer**
+   ```bash
+   chmod +x install.sh
+   ./install.sh
+   ```
+
+   The installer will:
+   - ✅ Compile the native messaging host
+   - ✅ Install all required files
+   - ✅ Set up Chrome configuration
+   - ✅ Create download directory in `~/Downloads/VideoDownloader/`
+
+4. **Download required tools** (if not included)
+   - [yt-dlp](https://github.com/yt-dlp/yt-dlp/releases) - Download the macOS version
+     ```bash
+     curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o yt-dlp
+     chmod +x yt-dlp
+     ```
+   - [N_m3u8DL-RE](https://github.com/nilaoda/N_m3u8DL-RE/releases) - Download for your Mac:
+     - Intel Mac: `N_m3u8DL-RE_Beta_osx-x64`
+     - Apple Silicon: `N_m3u8DL-RE_Beta_osx-arm64`
+     ```bash
+     # For Intel Mac
+     curl -L https://github.com/nilaoda/N_m3u8DL-RE/releases/latest/download/N_m3u8DL-RE_Beta_osx-x64 -o N_m3u8DL-RE
+     chmod +x N_m3u8DL-RE
+
+     # For Apple Silicon Mac
+     curl -L https://github.com/nilaoda/N_m3u8DL-RE/releases/latest/download/N_m3u8DL-RE_Beta_osx-arm64 -o N_m3u8DL-RE
+     chmod +x N_m3u8DL-RE
+     ```
+
+5. **Load the Chrome extension**
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" (top right toggle)
+   - Click "Load unpacked"
+   - Select the `plugin/` directory
+   - **Copy the Extension ID**
+
+6. **Update configuration (if needed)**
+
+   If your extension ID is different from the default, run the installer again:
+   ```bash
+   ./install.sh
+   # Enter your extension ID when prompted
+   ```
+
+7. **Restart Chrome**
+   ```bash
+   pkill -f Chrome
+   # Reopen Chrome and test the extension
+   ```
+
+#### Installation Locations
+
+After installation:
+- Native Host: `~/.local/bin/videodl_host`
+- Download Tools: `~/Library/Application Support/video-downloader/tools/`
+- Downloaded Videos: `~/Downloads/VideoDownloader/`
+- Configuration: `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/`
+
+#### Uninstallation
+
+To remove the extension:
+
+```bash
+cd mac_package
+./uninstall.sh
+```
+
+#### Requirements
+
+- macOS 10.15+ (Catalina or later)
+- Xcode Command Line Tools
+- Chrome or Chromium-based browser
 
 ### Windows Installation
 
@@ -371,16 +466,26 @@ video-downloader/
 │   ├── N_m3u8DL-RE          # M3U8 downloader
 │   ├── install.sh           # Installation script
 │   └── com.videodl.host.template.json
+├── mac_package/              # macOS version
+│   ├── native_host.cpp       # Native Host source
+│   ├── native_host           # Compiled executable
+│   ├── yt-dlp               # YouTube downloader
+│   ├── N_m3u8DL-RE          # M3U8 downloader
+│   ├── install.sh           # Installation script
+│   ├── uninstall.sh         # Uninstallation script
+│   └── com.videodl.host.template.json
 ├── windows_package/          # Windows version
 │   ├── native_host.cpp
 │   ├── native_host.exe
-│   ├── installer.bat
+│   ├── install.bat
+│   ├── uninstall.bat
 │   └── com.videodl.host.template.json
 └── README.md
 ```
 
 ### Modify and Recompile
 
+**Linux:**
 ```bash
 # 1. Edit source code
 vim linux_package/native_host.cpp
@@ -390,10 +495,44 @@ cd linux_package
 g++ -std=c++11 -o native_host native_host.cpp
 
 # 3. Update installed version
-cp native_host ~/.local/bin/videodl_host.real
+cp native_host ~/.local/bin/videodl_host
 
 # 4. Restart Chrome to test
 pkill -f chrome
+```
+
+**macOS:**
+```bash
+# 1. Edit source code
+vim mac_package/native_host.cpp
+
+# 2. Recompile
+cd mac_package
+clang++ -std=c++11 -o native_host native_host.cpp
+# or use g++ if you prefer
+# g++ -std=c++11 -o native_host native_host.cpp
+
+# 3. Update installed version
+cp native_host ~/.local/bin/videodl_host
+
+# 4. Restart Chrome to test
+pkill -f Chrome
+```
+
+**Windows:**
+```cmd
+REM 1. Edit source code
+notepad windows_package\native_host.cpp
+
+REM 2. Recompile
+cd windows_package
+g++ -std=c++11 -o native_host.exe native_host.cpp -lws2_32
+
+REM 3. Update installed version
+copy native_host.exe %LOCALAPPDATA%\Programs\videodl_host.exe
+
+REM 4. Restart Chrome to test
+taskkill /F /IM chrome.exe
 ```
 
 ### Debugging Tips
@@ -405,14 +544,21 @@ pkill -f chrome
 
 **View Native Host Logs:**
 ```bash
+# Linux / macOS
 tail -f /tmp/native_host_debug.log
+
+# Windows
+type %TEMP%\native_host_debug.log
 ```
 
 **Test Native Messaging Communication:**
 ```bash
-# Manually test native host
+# Linux / macOS - Manually test native host
 echo '{"action":"download_youtube","url":"https://youtube.com/watch?v=test","save_name":"test"}' | \
   ~/.local/bin/videodl_host
+
+# Windows
+echo {"action":"download_youtube","url":"https://youtube.com/watch?v=test","save_name":"test"} | %LOCALAPPDATA%\Programs\videodl_host.exe
 ```
 
 ## 📄 License
