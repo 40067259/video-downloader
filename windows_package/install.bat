@@ -22,20 +22,33 @@ set "SCRIPT_DIR=%~dp0"
 echo Installation directory: %SCRIPT_DIR%
 echo.
 
-REM Check for required tools
-echo Checking dependencies...
+REM Check if native_host.exe already exists (pre-compiled)
+set "NEED_COMPILE=0"
+if not exist "%SCRIPT_DIR%native_host.exe" (
+    set "NEED_COMPILE=1"
+    echo Pre-compiled native_host.exe not found
+    echo Will compile from source...
+    echo.
 
-REM Check for g++ (MinGW)
-where g++ >nul 2>&1
-if %errorLevel% neq 0 (
-    echo Error: g++ not found
-    echo Please install MinGW-w64 or Visual Studio
-    echo Download from: https://www.mingw-w64.org/
-    pause
-    exit /b 1
+    REM Check for g++ (MinGW)
+    echo Checking for C++ compiler...
+    where g++ >nul 2>&1
+    if %errorLevel% neq 0 (
+        echo Error: g++ not found
+        echo Please install MinGW-w64 or Visual Studio
+        echo Download from: https://www.mingw-w64.org/
+        echo.
+        echo Alternatively, download the pre-compiled version from:
+        echo https://github.com/40067259/video-downloader/releases
+        pause
+        exit /b 1
+    )
+    echo [OK] g++ found
+    echo.
+) else (
+    echo [OK] Using pre-compiled native_host.exe
+    echo.
 )
-echo [OK] g++ found
-echo.
 
 REM Create installation directories
 echo Creating directories...
@@ -54,18 +67,23 @@ if not exist "%DOWNLOADS_DIR%" mkdir "%DOWNLOADS_DIR%"
 echo [OK] Directories created
 echo.
 
-REM Compile native_host
-echo Compiling native messaging host...
-cd /d "%SCRIPT_DIR%"
-g++ -std=c++11 -o native_host.exe native_host.cpp -lws2_32
-if %errorLevel% neq 0 (
-    echo Error: Compilation failed
-    echo Please make sure json.hpp is in the windows_package directory
-    pause
-    exit /b 1
+REM Compile native_host if needed
+if "%NEED_COMPILE%"=="1" (
+    echo Compiling native messaging host...
+    cd /d "%SCRIPT_DIR%"
+    g++ -std=c++11 -o native_host.exe native_host.cpp -lws2_32
+    if %errorLevel% neq 0 (
+        echo Error: Compilation failed
+        echo Please make sure json.hpp is in the windows_package directory
+        pause
+        exit /b 1
+    )
+    echo [OK] Compilation successful
+    echo.
+) else (
+    echo Skipping compilation (using pre-compiled binary)
+    echo.
 )
-echo [OK] Compilation successful
-echo.
 
 REM Copy files
 echo Installing files...

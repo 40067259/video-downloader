@@ -2,6 +2,24 @@
 
 A powerful Chrome extension for downloading YouTube videos and M3U8 streaming videos.
 
+## 📥 Quick Download
+
+**Latest Release: v1.0.0** | [View All Releases](https://github.com/40067259/video-downloader/releases)
+
+Choose your platform and download:
+
+| Platform | Download | Size | Requirements |
+|----------|----------|------|--------------|
+| 🐧 **Linux** | [video-downloader-linux-v1.0.0.zip](https://github.com/40067259/video-downloader/releases/download/v1.0.0/video-downloader-linux-v1.0.0.zip) | 12 MB | Ubuntu 20.04+ / Debian 11+ / Fedora 35+ |
+| 🍎 **macOS** | [video-downloader-macos-v1.0.0.zip](https://github.com/40067259/video-downloader/releases/download/v1.0.0/video-downloader-macos-v1.0.0.zip) | 163 KB | macOS 10.15+ (Intel & Apple Silicon) |
+| 🪟 **Windows** | [video-downloader-windows-v1.0.0.zip](https://github.com/40067259/video-downloader/releases/download/v1.0.0/video-downloader-windows-v1.0.0.zip) | 961 KB | Windows 10/11 |
+
+**Installation:** Extract the ZIP file and run `install.sh` (Linux/macOS) or `install.bat` (Windows). See [Installation](#-installation) for details.
+
+> **Note:** No need to `git clone`! Just download, extract, and install.
+
+---
+
 ## ✨ Features
 
 - 🎬 **YouTube Video Download** - Automatically download YouTube videos via yt-dlp
@@ -103,9 +121,29 @@ A powerful Chrome extension for downloading YouTube videos and M3U8 streaming vi
 
 ## 🚀 Installation
 
-### Quick Start (Recommended)
+### Method 1: Download Release (Recommended)
+
+**For end users - No git required!**
+
+1. **Download** the appropriate package from [Releases](https://github.com/40067259/video-downloader/releases) or from the [Quick Download](#-quick-download) section above
+2. **Extract** the ZIP file
+3. **Run** the installer:
+   - Linux/macOS: `./install.sh`
+   - Windows: Right-click `install.bat` → Run as Administrator
+4. Follow the on-screen instructions
+
+### Method 2: Clone from Source (For Developers)
+
+**For developers who want to modify the code:**
 
 #### Linux Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/40067259/video-downloader.git
+cd video-downloader
+```
 
 **One-command installation:**
 
@@ -170,14 +208,20 @@ To remove the extension:
 ./uninstall.sh
 ```
 
-### macOS Installation
+#### macOS Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/40067259/video-downloader.git
+cd video-downloader
+```
 
 **One-command installation:**
 
-1. **Download or clone this repository**
+1. **Navigate to mac_package**
    ```bash
-   git clone https://github.com/40067259/video-downloader.git
-   cd video-downloader/mac_package
+   cd mac_package
    ```
 
 2. **Install Xcode Command Line Tools** (if not already installed)
@@ -260,14 +304,20 @@ cd mac_package
 - Xcode Command Line Tools
 - Chrome or Chromium-based browser
 
-### Windows Installation
+#### Windows Installation
+
+Clone the repository:
+
+```cmd
+git clone https://github.com/40067259/video-downloader.git
+cd video-downloader
+```
 
 **One-command installation:**
 
-1. **Download or clone this repository**
+1. **Navigate to windows_package**
    ```cmd
-   git clone https://github.com/40067259/video-downloader.git
-   cd video-downloader\windows_package
+   cd windows_package
    ```
 
 2. **Run the installer** (Right-click → Run as Administrator)
