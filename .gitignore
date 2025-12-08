@@ -17,6 +17,8 @@ videodl_host
 !linux_package/N_m3u8DL-RE
 !linux_package/native_host
 !linux_package/videodl_host
+!linux_package/ffmpeg
+!linux_package/ffprobe
 
 # Allow macOS tools (if any)
 !mac_package/yt-dlp

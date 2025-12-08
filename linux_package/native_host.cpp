@@ -254,9 +254,13 @@ int main() {
             std::string filename = save + ".mp4";
             std::string fullPath = g_downloadsDir + "/" + filename;
 
+            // Full path to ffmpeg
+            std::string ffmpegPath = toolsDir + "/ffmpeg";
+
             std::string cmd =
-                "./yt-dlp -f \"bv*[vcodec^=avc1]+ba/b\" "
+                "./yt-dlp -f \"bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best\" "
                 "--merge-output-format mp4 "
+                "--ffmpeg-location \"" + ffmpegPath + "\" "
                 "--newline "
                 "-o \"" + fullPath + "\" "
                 "\"" + url + "\"";
