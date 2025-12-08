@@ -20,11 +20,13 @@ videodl_host
 !linux_package/ffmpeg
 !linux_package/ffprobe
 
-# Allow macOS tools (if any)
+# Allow macOS tools
 !mac_package/yt-dlp
 !mac_package/N_m3u8DL-RE
 !mac_package/native_host
 !mac_package/videodl_host
+!mac_package/ffmpeg
+!mac_package/ffprobe
 
 # 日志文件
 Logs/

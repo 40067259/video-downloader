@@ -108,6 +108,24 @@ else
     echo "  or: N_m3u8DL-RE_Beta_osx-arm64 (for Apple Silicon)"
 fi
 
+if [ -f "ffmpeg" ]; then
+    cp ffmpeg "$TOOLS_DIR/"
+    chmod +x "$TOOLS_DIR/ffmpeg"
+    echo -e "${GREEN}✓ ffmpeg installed${NC}"
+else
+    echo -e "${YELLOW}⚠ Warning: ffmpeg not found, video/audio merging won't work${NC}"
+    echo "  Download from: https://evermeet.cx/ffmpeg/"
+fi
+
+if [ -f "ffprobe" ]; then
+    cp ffprobe "$TOOLS_DIR/"
+    chmod +x "$TOOLS_DIR/ffprobe"
+    echo -e "${GREEN}✓ ffprobe installed${NC}"
+else
+    echo -e "${YELLOW}⚠ Warning: ffprobe not found${NC}"
+    echo "  Download from: https://evermeet.cx/ffmpeg/"
+fi
+
 echo ""
 
 # Get Chrome extension ID
