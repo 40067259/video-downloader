@@ -9,6 +9,8 @@ videodl_host
 !windows_package/native_host.exe
 !windows_package/yt-dlp.exe
 !windows_package/N_m3u8DL-RE.exe
+!windows_package/ffmpeg.exe
+!windows_package/ffprobe.exe
 
 # Allow Linux tools
 !linux_package/yt-dlp

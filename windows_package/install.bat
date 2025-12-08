@@ -138,20 +138,53 @@ if %errorLevel% neq 0 (
 echo [OK] Native host installed to: %BIN_DIR%\videodl_host.exe
 
 REM Copy download tools
-if exist "yt-dlp.exe" (
-    copy /Y yt-dlp.exe "%TOOLS_DIR%\" >nul
-    echo [OK] yt-dlp.exe installed
+echo Installing download tools...
+
+if exist "%SCRIPT_DIR%yt-dlp.exe" (
+    copy /Y "%SCRIPT_DIR%yt-dlp.exe" "%TOOLS_DIR%\"
+    if %errorLevel% equ 0 (
+        echo [OK] yt-dlp.exe installed
+    ) else (
+        echo [ERROR] Failed to copy yt-dlp.exe
+    )
 ) else (
-    echo Warning: yt-dlp.exe not found, YouTube downloads won't work
-    echo Download from: https://github.com/yt-dlp/yt-dlp/releases
+    echo [WARNING] yt-dlp.exe not found in %SCRIPT_DIR%
+    echo YouTube downloads won't work
 )
 
-if exist "N_m3u8DL-RE.exe" (
-    copy /Y N_m3u8DL-RE.exe "%TOOLS_DIR%\" >nul
-    echo [OK] N_m3u8DL-RE.exe installed
+if exist "%SCRIPT_DIR%N_m3u8DL-RE.exe" (
+    copy /Y "%SCRIPT_DIR%N_m3u8DL-RE.exe" "%TOOLS_DIR%\"
+    if %errorLevel% equ 0 (
+        echo [OK] N_m3u8DL-RE.exe installed
+    ) else (
+        echo [ERROR] Failed to copy N_m3u8DL-RE.exe
+    )
 ) else (
-    echo Warning: N_m3u8DL-RE.exe not found, M3U8 downloads won't work
-    echo Download from: https://github.com/nilaoda/N_m3u8DL-RE/releases
+    echo [WARNING] N_m3u8DL-RE.exe not found in %SCRIPT_DIR%
+    echo M3U8 downloads won't work
+)
+
+if exist "%SCRIPT_DIR%ffmpeg.exe" (
+    copy /Y "%SCRIPT_DIR%ffmpeg.exe" "%TOOLS_DIR%\"
+    if %errorLevel% equ 0 (
+        echo [OK] ffmpeg.exe installed
+    ) else (
+        echo [ERROR] Failed to copy ffmpeg.exe
+    )
+) else (
+    echo [WARNING] ffmpeg.exe not found in %SCRIPT_DIR%
+    echo Video/audio merging won't work
+)
+
+if exist "%SCRIPT_DIR%ffprobe.exe" (
+    copy /Y "%SCRIPT_DIR%ffprobe.exe" "%TOOLS_DIR%\"
+    if %errorLevel% equ 0 (
+        echo [OK] ffprobe.exe installed
+    ) else (
+        echo [ERROR] Failed to copy ffprobe.exe
+    )
+) else (
+    echo [WARNING] ffprobe.exe not found
 )
 
 echo.

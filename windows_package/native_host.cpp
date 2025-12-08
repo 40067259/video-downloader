@@ -275,6 +275,7 @@ int main() {
             std::string cmd =
                 "yt-dlp.exe -f \"bv*[vcodec^=avc1]+ba/b\" "
                 "--merge-output-format mp4 "
+                "--ffmpeg-location ffmpeg.exe "
                 "--newline "
                 "-o \"" + fullPath + "\" "
                 "\"" + url + "\"";
