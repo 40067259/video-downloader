@@ -89,17 +89,21 @@ echo -e "${GREEN}✓ Native host installed to: $BIN_DIR/videodl_host${NC}"
 # Remove quarantine attributes from source files before copying
 # This is critical because macOS copies quarantine attributes when copying files
 echo "Removing quarantine attributes from source files..."
-echo "(This may require sudo password)"
-sudo xattr -cr . 2>/dev/null || xattr -cr . 2>/dev/null || true
-echo -e "${GREEN}✓ Source files cleaned${NC}"
+if xattr -cr . 2>/dev/null; then
+    echo -e "${GREEN}✓ Source files cleaned${NC}"
+else
+    echo "(This requires sudo password)"
+    sudo xattr -cr . 2>/dev/null || true
+    echo -e "${GREEN}✓ Source files cleaned${NC}"
+fi
 echo ""
 
 # Download and install yt-dlp
 echo "Downloading yt-dlp..."
 if curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o "$TOOLS_DIR/yt-dlp" 2>/dev/null; then
     chmod +x "$TOOLS_DIR/yt-dlp"
-    # Immediately remove quarantine attribute after download
-    sudo xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
+    # Immediately remove quarantine attribute after download (usually doesn't need sudo for home directory)
+    xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
     echo -e "${GREEN}✓ yt-dlp downloaded and installed${NC}"
 else
     echo -e "${RED}✗ Failed to download yt-dlp${NC}"
@@ -146,14 +150,10 @@ echo ""
 
 # Recursively remove quarantine attributes from all files in tools directory
 # This is necessary for tools with embedded frameworks (like yt-dlp with Python.framework)
-echo "Removing quarantine attributes from installed tools..."
-sudo xattr -cr "$TOOLS_DIR" 2>/dev/null || xattr -cr "$TOOLS_DIR" 2>/dev/null || true
-
-# Special handling for yt-dlp's embedded Python.framework
-# Force clear any potential quarantine in nested structures
-if [ -f "$TOOLS_DIR/yt-dlp" ]; then
-    echo "Performing deep clean on yt-dlp..."
-    sudo xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
+echo "Final quarantine cleanup..."
+if ! xattr -cr "$TOOLS_DIR" 2>/dev/null; then
+    echo "(Need sudo for deep clean)"
+    sudo xattr -cr "$TOOLS_DIR" 2>/dev/null || true
 fi
 
 echo -e "${GREEN}✓ All quarantine attributes removed${NC}"
