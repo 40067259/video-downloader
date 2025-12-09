@@ -1,8 +1,23 @@
-# Video Downloader v1.0.0
+# Video Downloader v1.0.1
 
-## 🎉 首次发布
+## 🔧 Bug 修复版本
 
-这是 Video Downloader 的第一个正式版本！一个功能强大的 Chrome 扩展，用于下载 YouTube 视频和 M3U8 流媒体视频。
+修复 macOS 用户无法运行下载工具的关键问题。
+
+## 🆕 本次更新
+
+### 修复的问题
+
+- **修复 macOS Gatekeeper 阻止问题** - 解决了 macOS 上出现 "yt-dlp can't be opened because Apple cannot check it for malicious software" 的错误
+  - 自动移除 yt-dlp、N_m3u8DL-RE、ffmpeg 和 ffprobe 的隔离属性
+  - 现在 YouTube 和 M3U8 下载都可以在 macOS 上正常工作
+  - 用户只需重新运行 `install.sh` 即可修复
+
+### 影响的平台
+
+- ✅ macOS - 修复关键问题
+- ➖ Linux - 无变化
+- ➖ Windows - 无变化
 
 ## ✨ 主要功能
 
@@ -19,20 +34,21 @@
 根据你的操作系统选择对应的安装包：
 
 ### Linux
-- 下载：`video-downloader-linux-v1.0.0.zip` (68MB)
+- 下载：`video-downloader-linux-v1.0.1.zip` (68MB)
 - 要求：Ubuntu 20.04+ / Debian 11+ / Fedora 35+
 - 包含：yt-dlp, N_m3u8DL-RE, ffmpeg, ffprobe
 - 安装：解压后运行 `./install.sh`
 
 ### macOS
-- 下载：`video-downloader-macos-v1.0.0.zip` (94MB)
+- 下载：`video-downloader-macos-v1.0.1.zip` (94MB) **[推荐更新]**
 - 要求：macOS 10.15+ (Catalina 或更高版本)
 - 支持：Intel Mac（Apple Silicon 通过 Rosetta 2 运行）
 - 包含：yt-dlp, N_m3u8DL-RE, ffmpeg, ffprobe
 - 安装：解压后运行 `./install.sh`
+- **重要**：已修复 Gatekeeper 阻止问题，强烈建议 macOS 用户更新
 
 ### Windows
-- 下载：`video-downloader-windows-v1.0.0.zip` (95MB)
+- 下载：`video-downloader-windows-v1.0.1.zip` (95MB)
 - 要求：Windows 10/11
 - 包含：yt-dlp.exe, N_m3u8DL-RE.exe, ffmpeg.exe, ffprobe.exe
 - 安装：解压后以管理员身份运行 `install.bat`
