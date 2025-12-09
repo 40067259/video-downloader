@@ -90,6 +90,8 @@ echo -e "${GREEN}✓ Native host installed to: $BIN_DIR/videodl_host${NC}"
 if [ -f "yt-dlp" ]; then
     cp yt-dlp "$TOOLS_DIR/"
     chmod +x "$TOOLS_DIR/yt-dlp"
+    # Remove macOS quarantine attribute to allow execution
+    xattr -d com.apple.quarantine "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
     echo -e "${GREEN}✓ yt-dlp installed${NC}"
 else
     echo -e "${YELLOW}⚠ Warning: yt-dlp not found, YouTube downloads won't work${NC}"
@@ -100,6 +102,8 @@ fi
 if [ -f "N_m3u8DL-RE" ]; then
     cp N_m3u8DL-RE "$TOOLS_DIR/"
     chmod +x "$TOOLS_DIR/N_m3u8DL-RE"
+    # Remove macOS quarantine attribute to allow execution
+    xattr -d com.apple.quarantine "$TOOLS_DIR/N_m3u8DL-RE" 2>/dev/null || true
     echo -e "${GREEN}✓ N_m3u8DL-RE installed${NC}"
 else
     echo -e "${YELLOW}⚠ Warning: N_m3u8DL-RE not found, M3U8 downloads won't work${NC}"
@@ -111,6 +115,8 @@ fi
 if [ -f "ffmpeg" ]; then
     cp ffmpeg "$TOOLS_DIR/"
     chmod +x "$TOOLS_DIR/ffmpeg"
+    # Remove macOS quarantine attribute to allow execution
+    xattr -d com.apple.quarantine "$TOOLS_DIR/ffmpeg" 2>/dev/null || true
     echo -e "${GREEN}✓ ffmpeg installed${NC}"
 else
     echo -e "${YELLOW}⚠ Warning: ffmpeg not found, video/audio merging won't work${NC}"
@@ -120,6 +126,8 @@ fi
 if [ -f "ffprobe" ]; then
     cp ffprobe "$TOOLS_DIR/"
     chmod +x "$TOOLS_DIR/ffprobe"
+    # Remove macOS quarantine attribute to allow execution
+    xattr -d com.apple.quarantine "$TOOLS_DIR/ffprobe" 2>/dev/null || true
     echo -e "${GREEN}✓ ffprobe installed${NC}"
 else
     echo -e "${YELLOW}⚠ Warning: ffprobe not found${NC}"
