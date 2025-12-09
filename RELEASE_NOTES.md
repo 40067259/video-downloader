@@ -8,10 +8,13 @@
 
 ### 修复的问题
 
-- **修复 macOS Gatekeeper 阻止问题** - 解决了 macOS 上出现 "yt-dlp can't be opened because Apple cannot check it for malicious software" 的错误
-  - 自动移除 yt-dlp、N_m3u8DL-RE、ffmpeg 和 ffprobe 的隔离属性
-  - 现在 YouTube 和 M3U8 下载都可以在 macOS 上正常工作
-  - 用户只需重新运行 `install.sh` 即可修复
+- **修复 macOS Gatekeeper 阻止问题** - 解决了 macOS 上出现的多个 Gatekeeper 错误：
+  - ❌ "yt-dlp can't be opened because Apple cannot check it for malicious software"
+  - ❌ "python.framework is damaged"
+  - ✅ 递归移除所有工具及其嵌入文件的隔离属性
+  - ✅ 修复 yt-dlp 内嵌 Python.framework 被阻止的问题
+  - ✅ 现在 YouTube 和 M3U8 下载都可以在 macOS 上正常工作
+  - 👉 用户只需重新运行 `install.sh` 即可完全修复
 
 ### 影响的平台
 
