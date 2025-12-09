@@ -86,6 +86,13 @@ cp native_host "$BIN_DIR/videodl_host"
 chmod +x "$BIN_DIR/videodl_host"
 echo -e "${GREEN}✓ Native host installed to: $BIN_DIR/videodl_host${NC}"
 
+# Remove quarantine attributes from source files before copying
+# This is critical because macOS copies quarantine attributes when copying files
+echo "Removing quarantine attributes from source files..."
+xattr -cr . 2>/dev/null || true
+echo -e "${GREEN}✓ Source files cleaned${NC}"
+echo ""
+
 # Copy download tools if they exist
 if [ -f "yt-dlp" ]; then
     cp yt-dlp "$TOOLS_DIR/"
