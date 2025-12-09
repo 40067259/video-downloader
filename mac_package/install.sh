@@ -94,17 +94,17 @@ sudo xattr -cr . 2>/dev/null || xattr -cr . 2>/dev/null || true
 echo -e "${GREEN}✓ Source files cleaned${NC}"
 echo ""
 
-# Copy download tools if they exist
-if [ -f "yt-dlp" ]; then
-    cp yt-dlp "$TOOLS_DIR/"
+# Download and install yt-dlp
+echo "Downloading yt-dlp..."
+if curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o "$TOOLS_DIR/yt-dlp" 2>/dev/null; then
     chmod +x "$TOOLS_DIR/yt-dlp"
-    # Remove macOS quarantine attribute to allow execution
-    xattr -d com.apple.quarantine "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
-    echo -e "${GREEN}✓ yt-dlp installed${NC}"
+    # Immediately remove quarantine attribute after download
+    sudo xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
+    echo -e "${GREEN}✓ yt-dlp downloaded and installed${NC}"
 else
-    echo -e "${YELLOW}⚠ Warning: yt-dlp not found, YouTube downloads won't work${NC}"
-    echo "  Download from: https://github.com/yt-dlp/yt-dlp/releases"
-    echo "  Command: curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o yt-dlp"
+    echo -e "${RED}✗ Failed to download yt-dlp${NC}"
+    echo "  YouTube downloads will not work"
+    echo "  You can manually download from: https://github.com/yt-dlp/yt-dlp/releases"
 fi
 
 if [ -f "N_m3u8DL-RE" ]; then
