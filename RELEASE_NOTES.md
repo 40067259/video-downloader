@@ -8,13 +8,14 @@
 
 ### 修复的问题
 
-- **修复 macOS Gatekeeper 阻止问题** - 解决了 macOS 上出现的多个 Gatekeeper 错误：
-  - ❌ "yt-dlp can't be opened because Apple cannot check it for malicious software"
-  - ❌ "python.framework is damaged"
-  - ✅ 递归移除所有工具及其嵌入文件的隔离属性
-  - ✅ 修复 yt-dlp 内嵌 Python.framework 被阻止的问题
-  - ✅ 现在 YouTube 和 M3U8 下载都可以在 macOS 上正常工作
-  - 👉 用户只需重新运行 `install.sh` 即可完全修复
+- **彻底修复 macOS Gatekeeper 阻止问题** - 采用全新安装方式，完全解决隔离属性问题：
+  - ❌ 旧问题："yt-dlp can't be opened because Apple cannot check it for malicious software"
+  - ❌ 旧问题："python.framework is damaged"
+  - ✅ **新方案**：安装时自动下载 yt-dlp，而非预打包
+  - ✅ 下载后立即清除隔离属性，避免传播
+  - ✅ YouTube 和 M3U8 下载在 macOS 上完全正常工作
+  - 🎁 额外好处：用户总是获得最新版本的 yt-dlp
+  - 📦 包体积减小：60MB（原 94MB）
 
 ### 影响的平台
 
@@ -43,12 +44,12 @@
 - 安装：解压后运行 `./install.sh`
 
 ### macOS
-- 下载：`video-downloader-macos-v1.0.1.zip` (94MB) **[推荐更新]**
+- 下载：`video-downloader-macos-v1.0.1.zip` (60MB) **[必须更新]**
 - 要求：macOS 10.15+ (Catalina 或更高版本)
 - 支持：Intel Mac（Apple Silicon 通过 Rosetta 2 运行）
-- 包含：yt-dlp, N_m3u8DL-RE, ffmpeg, ffprobe
-- 安装：解压后运行 `./install.sh`
-- **重要**：已修复 Gatekeeper 阻止问题，强烈建议 macOS 用户更新
+- 包含：N_m3u8DL-RE, ffmpeg, ffprobe（yt-dlp 安装时自动下载）
+- 安装：解压后运行 `./install.sh`（需要网络连接下载 yt-dlp）
+- **重要**：完全修复 Gatekeeper 问题，macOS 用户必须更新
 
 ### Windows
 - 下载：`video-downloader-windows-v1.0.1.zip` (95MB)
