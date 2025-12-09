@@ -89,7 +89,8 @@ echo -e "${GREEN}✓ Native host installed to: $BIN_DIR/videodl_host${NC}"
 # Remove quarantine attributes from source files before copying
 # This is critical because macOS copies quarantine attributes when copying files
 echo "Removing quarantine attributes from source files..."
-xattr -cr . 2>/dev/null || true
+echo "(This may require sudo password)"
+sudo xattr -cr . 2>/dev/null || xattr -cr . 2>/dev/null || true
 echo -e "${GREEN}✓ Source files cleaned${NC}"
 echo ""
 
@@ -145,19 +146,14 @@ echo ""
 
 # Recursively remove quarantine attributes from all files in tools directory
 # This is necessary for tools with embedded frameworks (like yt-dlp with Python.framework)
-echo "Removing quarantine attributes from all tools..."
-xattr -dr com.apple.quarantine "$TOOLS_DIR" 2>/dev/null || true
+echo "Removing quarantine attributes from installed tools..."
+sudo xattr -cr "$TOOLS_DIR" 2>/dev/null || xattr -cr "$TOOLS_DIR" 2>/dev/null || true
 
 # Special handling for yt-dlp's embedded Python.framework
 # Force clear any potential quarantine in nested structures
 if [ -f "$TOOLS_DIR/yt-dlp" ]; then
     echo "Performing deep clean on yt-dlp..."
-    # Clear the main file
-    xattr -c "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
-    # If yt-dlp is a bundle or directory, clear everything inside
-    if [ -d "$TOOLS_DIR/yt-dlp" ]; then
-        find "$TOOLS_DIR/yt-dlp" -exec xattr -c {} \; 2>/dev/null || true
-    fi
+    sudo xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || xattr -cr "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
 fi
 
 echo -e "${GREEN}✓ All quarantine attributes removed${NC}"
