@@ -147,6 +147,19 @@ echo ""
 # This is necessary for tools with embedded frameworks (like yt-dlp with Python.framework)
 echo "Removing quarantine attributes from all tools..."
 xattr -dr com.apple.quarantine "$TOOLS_DIR" 2>/dev/null || true
+
+# Special handling for yt-dlp's embedded Python.framework
+# Force clear any potential quarantine in nested structures
+if [ -f "$TOOLS_DIR/yt-dlp" ]; then
+    echo "Performing deep clean on yt-dlp..."
+    # Clear the main file
+    xattr -c "$TOOLS_DIR/yt-dlp" 2>/dev/null || true
+    # If yt-dlp is a bundle or directory, clear everything inside
+    if [ -d "$TOOLS_DIR/yt-dlp" ]; then
+        find "$TOOLS_DIR/yt-dlp" -exec xattr -c {} \; 2>/dev/null || true
+    fi
+fi
+
 echo -e "${GREEN}✓ All quarantine attributes removed${NC}"
 echo ""
 
@@ -189,6 +202,24 @@ echo ""
 echo "=========================================="
 echo "Installation Complete!"
 echo "=========================================="
+echo ""
+
+# Test yt-dlp to trigger macOS Gatekeeper approval
+if [ -f "$TOOLS_DIR/yt-dlp" ]; then
+    echo "Testing yt-dlp..."
+    if "$TOOLS_DIR/yt-dlp" --version >/dev/null 2>&1; then
+        echo -e "${GREEN}✓ yt-dlp is working${NC}"
+    else
+        echo -e "${YELLOW}⚠ yt-dlp needs manual approval${NC}"
+        echo ""
+        echo "If you see 'Python.framework is damaged' error, run:"
+        echo "  sudo xattr -cr '$TOOLS_DIR/yt-dlp'"
+        echo ""
+        echo "Or right-click yt-dlp in Finder and select 'Open' to approve it."
+        echo ""
+    fi
+fi
+
 echo ""
 echo "Installation Summary:"
 echo "  Native host: $BIN_DIR/videodl_host"
