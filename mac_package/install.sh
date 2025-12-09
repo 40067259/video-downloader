@@ -136,6 +136,13 @@ fi
 
 echo ""
 
+# Recursively remove quarantine attributes from all files in tools directory
+# This is necessary for tools with embedded frameworks (like yt-dlp with Python.framework)
+echo "Removing quarantine attributes from all tools..."
+xattr -dr com.apple.quarantine "$TOOLS_DIR" 2>/dev/null || true
+echo -e "${GREEN}✓ All quarantine attributes removed${NC}"
+echo ""
+
 # Get Chrome extension ID
 echo "=========================================="
 echo "Chrome Extension Setup"
